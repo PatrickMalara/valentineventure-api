@@ -1,8 +1,9 @@
-const express = require('express');
-const app = express();
-const port = 8080;
-const mysql = require('mysql');
-const domain = 'api';
+const express   = require('express');
+const cors      = require('cors');
+const app       = express();
+const mysql     = require('mysql');
+
+const { port } = require('./config');
 
 /*
  * From what I understand this is middleware 
@@ -10,6 +11,7 @@ const domain = 'api';
  * need to read more...
  * */
 app.use( express.json() ); 
+app.use( cors() ); 
 
 let con = mysql.createConnection({
     host: "localhost",
@@ -18,34 +20,7 @@ let con = mysql.createConnection({
     database: "vv"
 });
 
-app.get(`/${domain}/location`, function(req, res) {
-
-
-    con.query("SELECT * FROM locations", function( error, result, fields) {
-        if ( error ) {
-            res.send(error);
-        }
-
-        res.send(result);
-    } );
-
-
-});
-
-app.get(`/${domain}/location/:id`, function(req, res) {
-
-   
-    // @TODO: dont do this lol
-    con.query(`SELECT * FROM locations WHERE id = ${req.params.id}`, function( error, result, fields) {
-        if ( error ) {
-            return res.status(418).send(error);
-        }
-
-        res.send(result);
-    } );
-
-
-});
+require('./routes')(app, con);
 
 
 app.listen(port, function() {
